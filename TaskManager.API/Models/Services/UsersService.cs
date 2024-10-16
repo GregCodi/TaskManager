@@ -8,10 +8,10 @@ using TaskManager.Common.Models;
 
 namespace TaskManager.API.Models.Services
 {
-    public class UserService : ICommonService<UserModel>
+    public class UsersService : AbstractionService, ICommonService<UserModel>
     {
         private readonly ApplicationContext _db;
-        public UserService(ApplicationContext db)
+        public UsersService(ApplicationContext db)
         {
             _db = db;
         }
@@ -36,6 +36,11 @@ namespace TaskManager.API.Models.Services
         public User GetUser(string login, string password)
         {
             var user = _db.Users.FirstOrDefault(u => u.Email == login && u.Password == password);
+            return user;
+        }
+        public User GetUser(string login)
+        {
+            var user = _db.Users.FirstOrDefault(u => u.Email == login);
             return user;
         }
 
@@ -119,19 +124,6 @@ namespace TaskManager.API.Models.Services
                 _db.Users.AddRange(newUsers);
                 _db.SaveChanges();
             });
-        }
-
-        private bool DoAction (Action action)
-        {
-            try
-            {
-                action.Invoke();
-                return true;
-            }
-            catch (Exception ex)
-            {
-                return false;
-            }
         }
 
     }

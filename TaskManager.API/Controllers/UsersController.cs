@@ -15,11 +15,11 @@ namespace TaskManager.API.Controllers
     public class UsersController : ControllerBase
     {
         private readonly ApplicationContext _db;
-        private readonly UserService _userService;
+        private readonly UsersService _usersService;
         public UsersController(ApplicationContext db)
         {
             _db = db;
-            _userService = new UserService(db);
+            _usersService = new UsersService(db);
         }
 
         [HttpGet("test")]
@@ -34,7 +34,7 @@ namespace TaskManager.API.Controllers
         {
             if(userModel != null)
             {
-                bool result = _userService.Create(userModel);
+                bool result = _usersService.Create(userModel);
                 return result ? Ok() : NotFound();
             }
             return BadRequest();
@@ -45,7 +45,7 @@ namespace TaskManager.API.Controllers
         {
             if (userModel != null)
             {
-                bool result = _userService.Update(id, userModel);
+                bool result = _usersService.Update(id, userModel);
                 return result ? Ok() : NotFound();
             }
             return BadRequest();
@@ -54,7 +54,7 @@ namespace TaskManager.API.Controllers
         [HttpDelete("delete/{id}")]
         public IActionResult DeleteUser(int id)
         {
-            bool result = _userService.Delete(id);
+            bool result = _usersService.Delete(id);
             return result ? Ok() : NotFound();
         }
 
@@ -69,7 +69,7 @@ namespace TaskManager.API.Controllers
         {
             if (userModels != null && userModels.Count > 0)
             {
-                bool result = _userService.CreateMultipleUsers(userModels);
+                bool result = _usersService.CreateMultipleUsers(userModels);
                 return result ? Ok() : NotFound(); ;
             }
             return BadRequest();
