@@ -20,10 +20,11 @@ namespace TaskManager.API.Controllers
         {
             _db = db;
             _usersService = new UsersService(db);
+            _projectService = new ProjectsService(db);
         }
         [HttpGet]
-        public async Task<IEnumerable<ProjectModel>> Get()
-        {  
+        public async Task<IEnumerable<CommonModel>> Get()
+        {
             var user = _usersService.GetUser(HttpContext.User.Identity.Name);
 
             if (user.Status == UserStatus.Admin)
@@ -31,7 +32,7 @@ namespace TaskManager.API.Controllers
             else
                 return await _projectService.GetByUserId(user.Id);
         }
-          
+
         [HttpGet("{id}")]
         public IActionResult Get(int id)
         {
@@ -46,15 +47,16 @@ namespace TaskManager.API.Controllers
             {
                 var user = _usersService.GetUser(HttpContext.User.Identity.Name);
 
-                if(user != null)
+                if (user != null)
                 {
-                    if(user.Status == UserStatus.Admin || user.Status == UserStatus.Editor)
+                    if (user.Status == UserStatus.Admin || user.Status == UserStatus.Editor)
                     {
                         var admin = _db.ProjectAdmins.FirstOrDefault(a => a.UserId == user.Id);
-                        if(admin == null)
+                        if (admin == null)
                         {
                             admin = new ProjectAdmin(user);
                             _db.ProjectAdmins.Add(admin);
+                            _db.SaveChanges();
                         }
                         projectModel.AdminId = admin.Id;
 
@@ -66,9 +68,10 @@ namespace TaskManager.API.Controllers
             }
             return BadRequest();
 
-            
+
         }
-        [HttpPatch]
+
+        [HttpPatch("{id}")]
         public IActionResult Update(int id, [FromBody] ProjectModel projectModel)
         {
             if (projectModel != null)
@@ -86,7 +89,8 @@ namespace TaskManager.API.Controllers
             }
             return BadRequest();
         }
-        [HttpDelete]
+
+        [HttpDelete("{id}")]
         public IActionResult Delete(int id)
         {
             bool result = _projectService.Delete(id);
@@ -94,8 +98,27 @@ namespace TaskManager.API.Controllers
             
         }
 
-        [HttpPatch("{id}/users/remove/{userId}")]
-        public IActionResult RemoveUsersToProject(int id, [FromBody] List<int> usersIds)
+        [HttpPatch("{id}/users")]
+        public IActionResult AddUsersToProject(int id, [FromBody] List<int> usersIds)
+        {
+            if (usersIds != null)
+            {
+                var user = _usersService.GetUser(HttpContext.User.Identity.Name);
+                if (user != null)
+                {
+                    if (user.Status == UserStatus.Admin || user.Status == UserStatus.Editor)
+                    {
+                        _projectService.AddUsersToProject(id, usersIds);
+                        return Ok();
+                    }
+                    return Unauthorized();
+                }
+            }
+            return BadRequest();
+        }
+
+        [HttpPatch("{id}/users/remove")]
+        public IActionResult RemoveUsersFromProject(int id, [FromBody] List<int> usersIds)
         {
             if(usersIds != null)
             {
