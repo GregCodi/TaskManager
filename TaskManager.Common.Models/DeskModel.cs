@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace TaskManager.Common.Models
+﻿namespace TaskManager.Common.Models
 {
     public class DeskModel : CommonModel
     {
@@ -8,6 +6,6 @@ namespace TaskManager.Common.Models
         public string[] Columns { get; set; }
         public int ProjectId { get; set; }
         public int AdminId { get; set; }
-        public List<int> TasksIds { get; set; }
+        public List<int>? TasksIds { get; set; }
     }
 }
